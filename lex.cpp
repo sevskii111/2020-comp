@@ -10,7 +10,8 @@ enum lex_types
     delimeter,
     relative_operators,
     keywords,
-    ids
+    ids,
+    broken_sequence
 };
 
 class lex
@@ -108,7 +109,7 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
                 }
                 else
                 {
-                    throw "Not found combination of symbols";
+                    result.push_back({broken_sequence, lex_m});
                 }
             }
             break;
