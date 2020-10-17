@@ -1,0 +1,15 @@
+begin
+end
+true
+false
+if
+then
+while
+do
+until
+not
+or
+and
+eqv
+implies
+step
