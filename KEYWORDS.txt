@@ -5,6 +5,7 @@ false
 if
 then
 while
+for
 do
 until
 not
@@ -14,4 +15,4 @@ eqv
 implies
 step
 real
-int
+integer

@@ -137,3 +137,12 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
     }
     return result;
 }
+
+int main()
+{
+    lex test_lex;
+    test_lex.load_kwords("KEYWORDS.txt");
+    test_lex.load_special("EQ.txt", equal);
+    test_lex.load_special("REL_OPS.txt", relative_operators);
+    test_lex.load_special("DELIMETER.txt", delimeter);
+}
