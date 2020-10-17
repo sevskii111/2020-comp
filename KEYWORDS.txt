@@ -13,3 +13,5 @@ and
 eqv
 implies
 step
+real
+int
