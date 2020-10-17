@@ -17,18 +17,16 @@ class lex
 {
     std::set<char> separator{' ', '\n'};
     std::set<char> non_id_chars;
-    std::set<std::string> eq, rel_ops, delimeters, kwords;
-    void load_special(std::set<std::string> &pos, const std::string &path);
+    std::set<std::string> kwords;
+    std::map<std::string, lex_types> symb;
 
 public:
-    void load_eq(const std::string &path);
-    void load_rel_ops(const std::string &path);
-    void load_delimeters(const std::string &path);
+    void load_special(const std::string &path, lex_types type_of_s);
     void load_kwords(const std::string &path);
     std::vector<std::pair<lex_types, std::string>> parse_file(const std::string &path);
 };
 
-void lex::load_special(std::set<std::string> &pos, const std::string &path)
+void lex::load_special(const std::string &path, lex_types type_of_s)
 {
     std::ifstream file(path);
     while (!file.eof())
@@ -39,24 +37,9 @@ void lex::load_special(std::set<std::string> &pos, const std::string &path)
         {
             non_id_chars.insert(i);
         }
-        pos.insert(temp);
+        symb[temp] = type_of_s;
     }
     file.close();
-}
-
-void lex::load_eq(const std::string &path)
-{
-    load_special(eq, path);
-}
-
-void lex::load_rel_ops(const std::string &path)
-{
-    load_special(rel_ops, path);
-}
-
-void lex::load_delimeters(const std::string &path)
-{
-    load_special(delimeters, path);
 }
 
 void lex::load_kwords(const std::string &path)
@@ -119,27 +102,13 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
             else
             {
                 state = start;
-                if (eq.count(lex_m))
+                if (symb.find(lex_m) != symb.end())
                 {
-                    result.push_back({equal, lex_m});
+                    result.push_back({symb[lex_m], lex_m});
                 }
                 else
                 {
-                    if (rel_ops.count(lex_m))
-                    {
-                        result.push_back({relative_operators, lex_m});
-                    }
-                    else
-                    {
-                        if (delimeters.count(lex_m))
-                        {
-                            result.push_back({delimeter, lex_m});
-                        }
-                        else
-                        {
-                            throw "Not found combination of symbols";
-                        }
-                    }
+                    throw "Not found combination of symbols";
                 }
             }
             break;
