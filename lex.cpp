@@ -163,9 +163,7 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
                 }
             }
             break;
-
-        default:
-            break;
         }
     }
+    return result;
 }
