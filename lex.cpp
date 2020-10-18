@@ -4,74 +4,48 @@
 #include <string>
 #include <vector>
 
-enum lex_types
-{
-    equal,
-    delimeter,
-    relative_operators,
-    keywords,
-    ids,
-    broken_sequence,
-    integer,
-    real
-};
-
-const char *lex_types_text(lex_types number)
-{
-    switch (number)
-    {
-    case equal:
-        return "equal";
-        break;
-
-    case delimeter:
-        return "delimeter";
-        break;
-
-    case relative_operators:
-        return "relative_operators";
-        break;
-
-    case keywords:
-        return "keywords";
-        break;
-
-    case ids:
-        return "ids";
-        break;
-
-    case broken_sequence:
-        return "broken_sequence";
-        break;
-
-    case integer:
-        return "integer";
-        break;
-
-    case real:
-        return "real";
-        break;
-
-    default:
-        return "not defined";
-        break;
-    }
-}
-
 class lex
 {
+public:
+    enum types
+    {
+        equal,
+        delimeter,
+        relative_operators,
+        keywords,
+        ids,
+        broken_sequence,
+        integer,
+        real
+    };
+
+private:
+    inline static const std::map<types, std::string> text_types{{equal, "equal"}, {delimeter, "delimeter"}, {relative_operators, "relative_operators"}, {keywords, "keywords"}, {ids, "ids"}, {broken_sequence, "broken_sequence"}, {integer, "integer"}, {real, "real"}};
     std::set<char> separator{' ', '\n'};
     std::set<char> non_id_chars;
     std::set<std::string> kwords;
-    std::map<std::string, lex_types> symb;
+    std::map<std::string, types> symb;
 
 public:
-    void load_special(const std::string &path, lex_types type_of_s);
+    static const char *lex_types_text(types number);
+    void load_special(const std::string &path, types type_of_s);
     void load_kwords(const std::string &path);
-    std::vector<std::pair<lex_types, std::string>> parse_file(const std::string &path);
+    std::vector<std::pair<types, std::string>> parse_file(const std::string &path);
 };
 
-void lex::load_special(const std::string &path, lex_types type_of_s)
+const char *lex::lex_types_text(lex::types number)
+{
+    if (text_types.find(number) != text_types.end())
+    {
+        return text_types.find(number)->second.c_str();
+    }
+    else
+    {
+        return "not defined";
+    }
+}
+
+void lex::load_special(const std::string &path, lex::types type_of_s)
 {
     std::ifstream file(path);
     while (!file.eof())
@@ -99,9 +73,9 @@ void lex::load_kwords(const std::string &path)
     file.close();
 }
 
-std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string &path)
+std::vector<std::pair<lex::types, std::string>> lex::parse_file(const std::string &path)
 {
-    std::vector<std::pair<lex_types, std::string>> result;
+    std::vector<std::pair<types, std::string>> result;
     std::ifstream file(path);
 
     enum states
@@ -216,13 +190,13 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
     return result;
 }
 
-void save_lex_resul_to_file(const std::string &path, const std::vector<std::pair<lex_types, std::string>> &result)
+void save_lex_resul_to_file(const std::string &path, const std::vector<std::pair<lex::types, std::string>> &result)
 {
     std::ofstream file(path);
     file << "\"№\",\"type\",\"text\"" << std::endl;
     for (size_t i = 0; i < result.size(); i++)
     {
-        file << "\"" << i << "\",\"" << lex_types_text(result[i].first) << "\",\"" << result[i].second << "\"" << std::endl;
+        file << "\"" << i << "\",\"" << lex::lex_types_text(result[i].first) << "\",\"" << result[i].second << "\"" << std::endl;
     }
     file.close();
 }
@@ -231,9 +205,9 @@ int main()
 {
     lex test_lex;
     test_lex.load_kwords("KEYWORDS.txt");
-    test_lex.load_special("EQ.txt", equal);
-    test_lex.load_special("REL_OPS.txt", relative_operators);
-    test_lex.load_special("DELIMETER.txt", delimeter);
+    test_lex.load_special("EQ.txt", lex::types::equal);
+    test_lex.load_special("REL_OPS.txt", lex::types::relative_operators);
+    test_lex.load_special("DELIMETER.txt", lex::types::delimeter);
     auto result = test_lex.parse_file("example.alg");
     save_lex_resul_to_file("result.csv", result);
 }
