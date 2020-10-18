@@ -173,6 +173,17 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
     return result;
 }
 
+void save_lex_resul_to_file(const std::string &path, const std::vector<std::pair<lex_types, std::string>> &result)
+{
+    std::ofstream file("path");
+    file << "\"№\",\"type\",\"text\"" << std::endl;
+    for (size_t i = 0; i < result.size(); i++)
+    {
+        file << "\"" << i << "\",\"" << lex_types_text(result[i].first) << "\",\"" << result[i].second << "\"" << std::endl;
+    }
+    file.close();
+}
+
 int main()
 {
     lex test_lex;
@@ -181,11 +192,5 @@ int main()
     test_lex.load_special("REL_OPS.txt", relative_operators);
     test_lex.load_special("DELIMETER.txt", delimeter);
     auto result = test_lex.parse_file("example.alg");
-    std::ofstream f_result("result.csv");
-    f_result << "\"№\",\"type\",\"text\"" << std::endl;
-    for (size_t i = 0; i < result.size(); i++)
-    {
-        f_result << "\"" << i << "\",\"" << lex_types_text(result[i].first) << "\",\"" << result[i].second << "\"" << std::endl;
-    }
-    f_result.close();
+    save_lex_resul_to_file("result.csv", result);
 }
