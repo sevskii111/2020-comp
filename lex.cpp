@@ -14,6 +14,40 @@ enum lex_types
     broken_sequence
 };
 
+const char *lex_types_text(lex_types nomber)
+{
+    switch (nomber)
+    {
+    case equal:
+        return "equal";
+        break;
+
+    case delimeter:
+        return "delimeter";
+        break;
+
+    case relative_operators:
+        return "relative_operators";
+        break;
+
+    case keywords:
+        return "keywords";
+        break;
+
+    case ids:
+        return "ids";
+        break;
+
+    case broken_sequence:
+        return "broken_sequence";
+        break;
+
+    default:
+        return "not defined";
+        break;
+    }
+}
+
 class lex
 {
     std::set<char> separator{' ', '\n'};
@@ -70,8 +104,8 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
     char temp;
     std::string lex_m{""};
     states state = start;
-    file.get(&temp, 1);
-    while (!file.eof())
+    file.get(temp);
+    do
     {
         switch (state)
         {
@@ -90,7 +124,7 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
             }
             else
             {
-                file.get(&temp, 1);
+                file.get(temp);
             }
             break;
 
@@ -98,7 +132,7 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
             if (non_id_chars.count(temp))
             {
                 lex_m += temp;
-                file.get(&temp, 1);
+                file.get(temp);
             }
             else
             {
@@ -118,7 +152,7 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
             if (!separator.count(temp) && !non_id_chars.count(temp))
             {
                 lex_m += temp;
-                file.get(&temp, 1);
+                file.get(temp);
             }
             else
             {
@@ -134,7 +168,8 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
             }
             break;
         }
-    }
+    } while (!file.eof());
+    file.close();
     return result;
 }
 
@@ -145,4 +180,12 @@ int main()
     test_lex.load_special("EQ.txt", equal);
     test_lex.load_special("REL_OPS.txt", relative_operators);
     test_lex.load_special("DELIMETER.txt", delimeter);
+    auto result = test_lex.parse_file("example.alg");
+    std::ofstream f_result("result.csv");
+    f_result << "\"№\",\"type\",\"text\"" << std::endl;
+    for (size_t i = 0; i < result.size(); i++)
+    {
+        f_result << "\"" << i << "\",\"" << lex_types_text(result[i].first) << "\",\"" << result[i].second << "\"" << std::endl;
+    }
+    f_result.close();
 }
