@@ -11,12 +11,14 @@ enum lex_types
     relative_operators,
     keywords,
     ids,
-    broken_sequence
+    broken_sequence,
+    integer,
+    real
 };
 
-const char *lex_types_text(lex_types nomber)
+const char *lex_types_text(lex_types number)
 {
-    switch (nomber)
+    switch (number)
     {
     case equal:
         return "equal";
@@ -40,6 +42,14 @@ const char *lex_types_text(lex_types nomber)
 
     case broken_sequence:
         return "broken_sequence";
+        break;
+
+    case integer:
+        return "integer";
+        break;
+
+    case real:
+        return "real";
         break;
 
     default:
@@ -170,12 +180,45 @@ std::vector<std::pair<lex_types, std::string>> lex::parse_file(const std::string
         }
     } while (!file.eof());
     file.close();
+    for (auto &i : result)
+    {
+        if (i.first == ids)
+        {
+            try
+            {
+                std::stoi(i.second);
+                i.first = integer;
+            }
+            catch (std::invalid_argument)
+            {
+                try
+                {
+                    std::stof(i.second);
+                    i.first = real;
+                }
+                catch (std::invalid_argument)
+                {
+                }
+            }
+            if (i.first == integer && i.second.find('.') != std::string::npos)
+            {
+                try
+                {
+                    std::stof(i.second);
+                    i.first = real;
+                }
+                catch (std::invalid_argument)
+                {
+                }
+            }
+        }
+    }
     return result;
 }
 
 void save_lex_resul_to_file(const std::string &path, const std::vector<std::pair<lex_types, std::string>> &result)
 {
-    std::ofstream file("path");
+    std::ofstream file(path);
     file << "\"№\",\"type\",\"text\"" << std::endl;
     for (size_t i = 0; i < result.size(); i++)
     {
